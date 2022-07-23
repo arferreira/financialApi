@@ -7,11 +7,12 @@ const customers = [];
 
 // Middleware
 
-function verifyExistAccountCpf(request, response, next){
+function verifyExistAccountCpf(request, response, next) {
   const { cpf } = request.headers;
   const customer = customers.find((customer) => customer.cpf === cpf);
 
-  if(!customer) return response.status(404).json({error: 'Customer not found!'});
+  if (!customer)
+    return response.status(404).json({ error: "Customer not found!" });
 
   request.customer = customer;
 
@@ -19,12 +20,12 @@ function verifyExistAccountCpf(request, response, next){
 }
 
 // function
-function getBalance(statement){
+function getBalance(statement) {
   const balance = statement.reduce((acc, operation) => {
-    if(operation.type === 'credit'){
+    if (operation.type === "credit") {
       return acc + operation.amout;
-    }else{
-      return - operation.amount;
+    } else {
+      return -operation.amount;
     }
   }, 0);
   return balance;
@@ -72,40 +73,63 @@ app.get("/statement", verifyExistAccountCpf, (request, response) => {
 });
 
 // Endpoint to deposit on statement
-app.post('/deposit', verifyExistAccountCpf, (request, response) => { 
+app.post("/deposit", verifyExistAccountCpf, (request, response) => {
   const { description, amount } = request.body;
   const { customer } = request;
   const statementOperation = {
     description,
     amount,
     createdAt: Date.now(),
-    type: 'credit'
+    type: "credit",
   };
 
   customer.statement.push(statementOperation);
-  return response.status(201).json({message: 'Depósito realizado com sucesso!'});
-
-
+  return response
+    .status(201)
+    .json({ message: "Depósito realizado com sucesso!" });
 });
 
 //Endpoint to withdraw on statement
-app.post('/withdraw', verifyExistAccountCpf, (request, response) => {
+app.post("/withdraw", verifyExistAccountCpf, (request, response) => {
   const { amount } = request.body;
   const { customer } = request;
 
   const balance = getBalance(customer.statement);
 
-  if(balance < amount) {
-    return response.status(400).json({error: 'Saldo insuficiente!'});
-  }else{
+  if (balance < amount) {
+    return response.status(400).json({ error: "Saldo insuficiente!" });
+  } else {
     const statementOperation = {
       amount,
       createdAt: Date.now(),
-      type: 'debit'
+      type: "debit",
     };
     customer.statement.push(statementOperation);
-    return response.status(201).json({message: 'Saque realizado com sucesso!'});
+    return response
+      .status(201)
+      .json({ message: "Saque realizado com sucesso!" });
   }
+});
+
+// Endpoint get statement of customer by date
+app.get("/statement/date", verifyExistAccountCpf, (request, response) => {
+  const { date } = request.query;
+  const { customer } = request;
+
+  const dateFormat = new Date(date + " 00:00");
+
+
+  const statement = customer.statement.filter(
+    (statement) =>
+      new Date(statement.createdAt).toDateString() === 
+      new Date(dateFormat).toDateString()
+  );
+
+  
+
+  return response.status(200).json({
+    data: statement,
+  });
 });
 
 app.listen(3333);
