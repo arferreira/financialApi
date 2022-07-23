@@ -132,4 +132,21 @@ app.get("/statement/date", verifyExistAccountCpf, (request, response) => {
   });
 });
 
+// Endpoint update account customer
+app.put('/account', verifyExistAccountCpf, (request, response) => {
+  const { name } = request.body;
+  const {customer} = request;
+
+  customer.name = name;
+
+  return response.status(200).json({message: 'Cliente atualizado com sucesso!'});
+});
+
+// Endpoint to get account data
+app.get('/account', verifyExistAccountCpf, (request, response) => {
+  const { customer } = request;
+
+  return response.json(customer);
+});
+
 app.listen(3333);
