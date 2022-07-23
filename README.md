@@ -1,6 +1,23 @@
 # Financial API
 
 
+### Instalacao
+
+-> Instalar nodeJS
+-> Rodar yarn install
+-> Rodar yarn dev
+
+
+
+
+### Configs
+
+Crie os endpoints no Postman ou insomia passando sempre no header params o cpf do cliente a ser criado,
+exceto no endpoint de criacao de conta.
+
+
+
+
 ### Requisitos
 
 [x] - Deve ser possível criar uma conta
