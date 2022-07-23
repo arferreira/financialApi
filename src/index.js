@@ -60,5 +60,20 @@ app.get("/statement", verifyExistAccountCpf, (request, response) => {
 });
 
 // Endpoint to deposit on statement
+app.post('/deposit', verifyExistAccountCpf, (request, response) => { 
+  const { description, amount } = request.body;
+  const { customer } = request;
+  const statementOperation = {
+    description,
+    amount,
+    createdAt: Date.now(),
+    type: 'credit'
+  };
+
+  customer.statement.push(statementOperation);
+  return response.status(201).json({message: 'Depósito realizado com sucesso!'});
+
+
+});
 
 app.listen(3333);
