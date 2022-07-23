@@ -149,4 +149,13 @@ app.get('/account', verifyExistAccountCpf, (request, response) => {
   return response.json(customer);
 });
 
+// Endpoint to delete 
+app.delete('/account', verifyExistAccountCpf, (request, response) => {
+  const { customer } = request;
+
+  customers.splice(customer, 1);
+
+  return response.status(200).json(customers);
+});
+
 app.listen(3333);
