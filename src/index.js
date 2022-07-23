@@ -5,6 +5,19 @@ const app = express();
 app.use(express.json());
 const customers = [];
 
+// Middleware
+
+function verifyExistAccountCpf(request, response, next){
+  const { cpf } = request.headers;
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  if(!customer) return response.status(404).json({error: 'Customer not found!'});
+
+  request.customer = customer;
+
+  return next();
+}
+
 /**
  * cpf - string
  * name - string
@@ -38,18 +51,14 @@ app.post("/account", (request, response) => {
   }
 });
 
-app.get("/statement", (request, response) => {
-  const { cpf } = request.headers;
-  const customer = customers.find((customer) => customer.cpf === cpf);
-
-  if (!customer) {
-    return response.status(404).json({
-      error: "Customer not found!",
-    });
-  }
+// Endpoint get statement of customer
+app.get("/statement", verifyExistAccountCpf, (request, response) => {
+  const { customer } = request;
   return response.status(200).json({
     message: customer.statement,
   });
 });
+
+// Endpoint to deposit on statement
 
 app.listen(3333);
